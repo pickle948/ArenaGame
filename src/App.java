@@ -1,24 +1,19 @@
 public class App {
+
+    static final int MAX_HEALTH = 100;
+    static final int STARTING_GOLD = 20;
+
     public static void main(String[] args) throws Exception {
+        String playerName = "Nick";
+        int health = MAX_HEALTH;
+        boolean isAlive = true;
+        double critChance = 0.15;
+        int gold = STARTING_GOLD;
+        int level = 1;
+        String enemyName = "Bappo";
+        int enemyHealth = 50;
+        int enemyPower = 10;
 
-        String myName = "Braylon";
-        System.out.println(myName);
-
-        myName = "Cassidy";
-        System.out.println(myName);
-
-        char myLetter = '\u00A9';
-        System.out.println(myLetter);
-
-        int x = 3;
-        short y = 3;
-        long z = 36287427284903L;
-        byte b = 3;
-
-        double d = 3.14112435607798543;
-        float f = 3.14112435607798543F;
-
-        boolean myBool = true;
-        boolean myBool2 = false;
     }
+
 }
