@@ -57,6 +57,7 @@ public class App {
         System.out.println("Crit! " + applied + " damage.");
         System.out.println("Crit damage (double): " + critDamage);
 
+        System.out.println(0.1 + 0.2);
     }
 
 }
