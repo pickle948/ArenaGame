@@ -62,6 +62,9 @@ public class Main {
         enemyName.length();
         enemyName.contains("Dragon");
         enemyName.equalsIgnoreCase("cave goblin");
+        System.out.println(enemyName.toUpperCase() + " blocks your path!");
+        System.out.println("Name length: " + enemyName.length());
+        boolean isBoss = enemyName.contains("Dragon");
 
 
         int damage = enemyPower * 2;
