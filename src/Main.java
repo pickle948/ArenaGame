@@ -43,6 +43,8 @@ public class Main {
 
         System.out.print("What is your name, challenger? ");
         String playerName = in.nextLine().trim();
+        if (playerName.isEmpty()){
+        playerName = "Warrior";}
         in.nextLine();
 
         System.out.print("Select your Difficulty: ");
@@ -123,6 +125,8 @@ public class Main {
         
         System.out.print("Choose your Weapon: ");
         String Weapon = in.nextLine().trim();
+        if (Weapon.isEmpty()){
+        Weapon = "Sword";}
         
         System.out.println(Weapon);
         System.out.println("Durability: " + weaponDura);
