@@ -10,22 +10,22 @@ public class Main {
         /*
          * TODO 1: PSEUDOCODE — the design, in English, before any Java.
          *
-         *   Write out what the program will ASK for and what it will DO with
-         *   each answer. Use plain words in capitals for the decisions:
-         *   ASK, IF, SET, SHOW, REPEAT UNTIL.
+         * Write out what the program will ASK for and what it will DO with
+         * each answer. Use plain words in capitals for the decisions:
+         * ASK, IF, SET, SHOW, REPEAT UNTIL.
          *
-         *   Mine looks like this — yours should match YOUR game:
+         * Mine looks like this — yours should match YOUR game:
          *
-         *       ASK for the player's name
-         *       IF the name is blank
-         *           USE "Warrior" instead
-         *       ASK for difficulty 1-3
-         *       SET enemy health based on difficulty
-         *       SHOW a summary and wait for Enter
+         * ASK for the player's name
+         * IF the name is blank
+         * USE "Warrior" instead
+         * ASK for difficulty 1-3
+         * SET enemy health based on difficulty
+         * SHOW a summary and wait for Enter
          *
-         *   Leave it here as a comment when you're done. It is part of what
-         *   you turn in, and in six weeks it is how you'll remember what this
-         *   file was supposed to do.
+         * Leave it here as a comment when you're done. It is part of what
+         * you turn in, and in six weeks it is how you'll remember what this
+         * file was supposed to do.
          */
 
         Scanner in = new Scanner(System.in);
@@ -43,8 +43,9 @@ public class Main {
 
         System.out.print("What is your name, challenger? ");
         String playerName = in.nextLine().trim();
-        if (playerName.isEmpty()){
-        playerName = "Warrior";}
+        if (playerName.isEmpty()) {
+            playerName = "Warrior";
+        }
         in.nextLine();
 
         System.out.print("Select your Difficulty: ");
@@ -58,22 +59,22 @@ public class Main {
         double critChance = 0.15;
 
         String enemyName = "Cave Goblin";
-        int enemyHealth = 50 * difficulty;
+        int enemyHealth = 25 * difficulty;
         int enemyPower = 10 * difficulty;
 
         System.out.printf("%-12s HP %3d/%3d  Gold %4d  Lv %d%n",
-                          playerName, health, MAX_HEALTH, gold, level);
+                playerName, health, MAX_HEALTH, gold, level);
         System.out.printf("Alive %-5b  Crit %.0f%%%n", alive, critChance * 100);
         System.out.println("");
 
         System.out.printf("%s enters the arena. The %s has %d HP.%n",
-        playerName, enemyName, enemyHealth);
+                playerName, enemyName, enemyHealth);
         System.out.print("Press Enter to begin...");
         in.nextLine();
 
         System.out.println(enemyName.toUpperCase() + " blocks your path!");
         System.out.printf("Opponent %-14s HP %3d  Power %2d%n",
-                          enemyName, enemyHealth, enemyPower);
+                enemyName, enemyHealth, enemyPower);
         System.out.println("Name length: " + enemyName.length());
 
         boolean isBoss = enemyName.contains("Dragon");
@@ -84,9 +85,9 @@ public class Main {
         }
         System.out.println("");
 
-        int damage = enemyPower * 2;
-        health -= damage;
-        System.out.println("You take " + damage + " damage. Health: " + health);
+        int enemydamage = enemyPower * 2;
+        health -= enemydamage;
+        System.out.println("You take " + enemydamage + " damage. Health: " + health);
 
         int potion = 15;
         health += potion;
@@ -110,28 +111,53 @@ public class Main {
         String bar = "#".repeat(bars) + "-".repeat(20 - bars);
         System.out.printf("[%s] %d%%%n", bar, health);
 
-        // TODO 5: design a feature of your own. Pseudocode FIRST, as a comment,
-        //         then build it. Ask the player something your game cares about
-        //         — a class, a weapon, a starting bonus — and use the answer.
+        Integer weaponDura = 30;
+        Integer weaponDmg = 60;
 
-              //*       ASK for the player's weapon
-         //*       IF the weapon is blank
-         //*           USE "Sword" instead
-         //*       SET weapon durability based on difficulty
-        // *       SHOW weapon stats
-
-        Integer weaponDura = 30 / difficulty;
-        Integer weaponDmg = 60 / difficulty;
-        
         System.out.print("Choose your Weapon: ");
         String Weapon = in.nextLine().trim();
-        if (Weapon.isEmpty()){
-        Weapon = "Sword";}
-        
-        System.out.println(Weapon);
-        System.out.println("Durability: " + weaponDura);
-        System.out.println("Damage: " + weaponDmg);
-        
+        if (Weapon.isEmpty()) {
+            Weapon = "Sword";
+        }
+
+        System.out.println(Weapon + " Durability: " + weaponDura);
+        System.out.println(Weapon + " Damage: " + weaponDmg);
         in.close();
+        System.out.println();
+
+        int roll = 7; // becomes random in L12
+
+        int damage;
+
+        if (roll >= 9) {
+            damage = enemyPower * 2;
+            System.out.println("CRITICAL HIT!");
+        } else if (roll >= 3) {
+            damage = enemyPower;
+            System.out.println("A solid hit.");
+        } else {
+            damage = 0;
+            System.out.println("You miss.");
+        }
+
+        enemyHealth -= damage;
+
+        if (enemyHealth <= 0) {
+            System.out.println("The " + enemyName + " falls!");
+            alive = true;
+        } else if (health <= 0) {
+            System.out.println("You have fallen.");
+            alive = false;
+        }
+
+        if (health > MAX_HEALTH) {
+            health = MAX_HEALTH;
+        } else if (health < 0) {
+            health = 0;
+        }
+
+        if (health < MAX_HEALTH / 4 && gold >= 10) {
+            System.out.println("You should buy a potion.");
+        }
     }
 }
