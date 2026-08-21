@@ -48,19 +48,19 @@ public class Main {
         }
         in.nextLine();
 
-        System.out.print("Select your Difficulty: ");
+        System.out.print("Difficulty (1 = easy, 2 = normal, 3 = brutal): ");
         int difficulty = in.nextInt();
-        in.nextLine();
+        in.nextLine(); // consume the leftover newline
+
+        int enemyHealth = 30 + difficulty * 15;
+        int enemyPower = 4 + difficulty * 3;
+        String enemyName = "Cave Goblin";
 
         int health = MAX_HEALTH;
         int gold = STARTING_GOLD;
         int level = 1;
         boolean alive = true;
         double critChance = 0.15;
-
-        String enemyName = "Cave Goblin";
-        int enemyHealth = 25 * difficulty;
-        int enemyPower = 10 * difficulty;
 
         System.out.printf("%-12s HP %3d/%3d  Gold %4d  Lv %d%n",
                 playerName, health, MAX_HEALTH, gold, level);
