@@ -1,3 +1,23 @@
+/*
+ * U1 L7 — SWITCH, TERNARY, AND CODING TO SPEC · STARTER CODE
+ * 7184 Software Development · Unit 1, Lesson 7
+ *
+ * ALREADY HERE:  Lessons 1-6 finished — the title screen, Scanner input, the
+ *                combat maths, the attack branching, and the health clamp.
+ * YOU'RE ADDING: a difficulty name from a switch EXPRESSION, a four-option
+ *                combat menu from a switch STATEMENT, and two ternaries.
+ *
+ *     javac Main.java
+ *     java Main
+ *
+ * BUILD WHAT THE SPEC SAYS, not what you would prefer. The spec sheet is on
+ * the assignment page. You will disagree with something in it — probably the
+ * 5 HP for defending. Build it anyway, then tell me why you'd change it.
+ *
+ * TODAY IS ONE TURN. The menu runs once and the program ends. That should
+ * annoy you. Taking a second turn needs a loop, and that is Lesson 8.
+ */
+
 import java.util.Scanner;
 
 public class Main {
@@ -6,30 +26,21 @@ public class Main {
     static final int STARTING_GOLD = 20;
 
     public static void main(String[] args) {
-
         /*
-         * TODO 1: PSEUDOCODE — the design, in English, before any Java.
-         *
-         * Write out what the program will ASK for and what it will DO with
-         * each answer. Use plain words in capitals for the decisions:
-         * ASK, IF, SET, SHOW, REPEAT UNTIL.
-         *
-         * Mine looks like this — yours should match YOUR game:
+         * PSEUDOCODE — the design, before the code (D1.7)
          *
          * ASK for the player's name
          * IF the name is blank
-         * USE "Warrior" instead
+         * USE "Challenger" instead
          * ASK for difficulty 1-3
+         * REPEAT UNTIL the answer is 1, 2, or 3 <- L8, needs do-while
          * SET enemy health based on difficulty
          * SHOW a summary and wait for Enter
-         *
-         * Leave it here as a comment when you're done. It is part of what
-         * you turn in, and in six weeks it is how you'll remember what this
-         * file was supposed to do.
          */
 
         Scanner in = new Scanner(System.in);
 
+        // ---------- L4 · text block title screen ----------
         String title = """
                 ========================
                      THE ARENA
@@ -44,17 +55,19 @@ public class Main {
         System.out.print("What is your name, challenger? ");
         String playerName = in.nextLine().trim();
         if (playerName.isEmpty()) {
-            playerName = "Warrior";
+            playerName = "Challenger";
         }
-        in.nextLine();
 
         System.out.print("Difficulty (1 = easy, 2 = normal, 3 = brutal): ");
         int difficulty = in.nextInt();
-        in.nextLine(); // consume the leftover newline
+        in.nextLine();
 
-        int enemyHealth = 30 + difficulty * 15;
-        int enemyPower = 4 + difficulty * 3;
-        String enemyName = "Cave Goblin";
+        String difficultyName = switch (difficulty) {
+        case 1 -> "Easy";
+        case 2 -> "Normal";
+        case 3 -> "Brutal";
+        default -> "Unknown";
+        };
 
         int health = MAX_HEALTH;
         int gold = STARTING_GOLD;
@@ -62,6 +75,11 @@ public class Main {
         boolean alive = true;
         double critChance = 0.15;
 
+        String enemyName = "Cave Goblin";
+        int enemyHealth = 30 + difficulty * 15;
+        int enemyPower = 4 + difficulty * 3;
+
+        // ---------- L4 · one formatted line instead of six ----------
         System.out.printf("%-12s HP %3d/%3d  Gold %4d  Lv %d%n",
                 playerName, health, MAX_HEALTH, gold, level);
         System.out.printf("Alive %-5b  Crit %.0f%%%n", alive, critChance * 100);
@@ -71,7 +89,9 @@ public class Main {
                 playerName, enemyName, enemyHealth);
         System.out.print("Press Enter to begin...");
         in.nextLine();
+        System.out.println("");
 
+        // ---------- L4 · String methods on the enemy ----------
         System.out.println(enemyName.toUpperCase() + " blocks your path!");
         System.out.printf("Opponent %-14s HP %3d  Power %2d%n",
                 enemyName, enemyHealth, enemyPower);
@@ -80,14 +100,17 @@ public class Main {
         boolean isBoss = enemyName.contains("Dragon");
         System.out.println("Boss fight: " + isBoss);
 
+        // .equals() compares the TEXT. == would compare the object reference,
+        // which is the wrong question and only works by accident.
         if (enemyName.equalsIgnoreCase("cave goblin")) {
             System.out.println("You have fought one of these before.");
         }
         System.out.println("");
 
-        int enemydamage = enemyPower * 2;
-        health -= enemydamage;
-        System.out.println("You take " + enemydamage + " damage. Health: " + health);
+        // ---------- 1 · combat arithmetic ----------
+        int damage = enemyPower * 2;
+        health -= damage;
+        System.out.println("You take " + damage + " damage. Health: " + health);
 
         int potion = 15;
         health += potion;
@@ -96,52 +119,72 @@ public class Main {
         System.out.println("You reach level " + level + ".");
         System.out.println("");
 
+        // ---------- 2 · the accuracy bug, then both fixes ----------
         int hits = 3;
         int swings = 7;
+
+        // The broken version. int / int is an int, so 3 / 7 is 0, and 0 * 100 is 0.
+        // Students TYPE THIS FIRST and run it. Seeing 0% is the lesson.
+        int brokenAccuracy = hits / swings * 100;
+        System.out.println("Accuracy (broken): " + brokenAccuracy + "%");
+
+        // Fix one: cast an operand, so the division itself is done in doubles.
         double acc1 = (double) hits / swings * 100;
-        System.out.printf("Accuracy: %.1f%%%n", acc1);
+
+        // Fix two: reorder so a double literal is in the maths before the divide.
+        double acc2 = hits * 100.0 / swings;
+
+        // L4 · same numbers, now readable. This is what printf is FOR.
+        System.out.printf("Accuracy (cast):    %.1f%%%n", acc1);
+        System.out.printf("Accuracy (reorder): %.1f%%%n", acc2);
         System.out.println("");
 
+        // ---------- 3 · a rhythm with % ----------
         int turn = 6;
         boolean enrages = (turn % 3 == 0);
         System.out.println("Turn " + turn + " — enrages: " + enrages);
         System.out.println("");
 
-        int bars = health / 5;
-        String bar = "#".repeat(bars) + "-".repeat(20 - bars);
-        System.out.printf("[%s] %d%%%n", bar, health);
+        // ---------- 4 · crit, and what the cast costs ----------
+        double critDamage = damage * 1.75;
+        int applied = (int) critDamage;
+        System.out.println("Crit damage (double): " + critDamage);
+        System.out.println("Crit damage (int):    " + applied);
+        System.out.println("Lost to the cast:     " + (critDamage - applied));
+        System.out.println("");
 
-        Integer weaponDura = 30;
-        Integer weaponDmg = 60;
+        // ---------- L6 · the attack roll (keep this — it moves) ----------
+        int roll = 7;
+        int damage2 = 0;
+        int potions = 2;
 
-        System.out.print("Choose your Weapon: ");
-        String Weapon = in.nextLine().trim();
-        if (Weapon.isEmpty()) {
-            Weapon = "Sword";
-        }
+        System.out.print("[A]ttack  [D]efend  [P]otion  [F]lee: ");
+        String action = in.nextLine().trim().toUpperCase();
+        
+        switch (action) {
+            case "A":
+                System.out.println("You attack");
+                break;
+            case "D":
+                System.out.println("You defend");
+                break;
+            case "P":
+                System.out.println("You drink a potion");
+                break;
+            case "F":
+                System.out.println("You flee");
+                break;
+            default:
+                System.out.println("You flee");
+        };
 
-        System.out.println(Weapon + " Durability: " + weaponDura);
-        System.out.println(Weapon + " Damage: " + weaponDmg);
-        in.close();
-        System.out.println();
+        System.out.printf("You have %d %s left.%n",
+                  potions, potions == 1 ? "potion" : "potions");
 
-        int roll = 7; // becomes random in L12
+        enemyHealth -= damage2;
+        System.out.printf("%s has %d HP left.%n", enemyName, enemyHealth);
 
-        int damage;
-
-        if (roll >= 9) {
-            damage = enemyPower * 2;
-            System.out.println("CRITICAL HIT!");
-        } else if (roll >= 3) {
-            damage = enemyPower;
-            System.out.println("A solid hit.");
-        } else {
-            damage = 0;
-            System.out.println("You miss.");
-        }
-
-        enemyHealth -= damage;
-
+        // ---------- L6 · the fight can now end ----------
         if (enemyHealth <= 0) {
             System.out.println("The " + enemyName + " falls!");
             alive = true;
@@ -150,14 +193,28 @@ public class Main {
             alive = false;
         }
 
+        // ---------- L6 · compound conditions ----------
+        // The guard comes FIRST. Flip these two and a zero divisor throws.
+        if (swings > 0 && hits / swings > 0.5) {
+            System.out.println("Your aim is holding up.");
+        }
+        if (health < MAX_HEALTH / 4 && gold >= 10) {
+            System.out.println("You should buy a potion.");
+        }
+        if (!alive || enemyHealth <= 0) {
+            System.out.println("The fight is over.");
+        }
+
+        // ---------- L6 · the clamp, at last (the L4 TODO, closed) ----------
         if (health > MAX_HEALTH) {
             health = MAX_HEALTH;
         } else if (health < 0) {
             health = 0;
         }
 
-        if (health < MAX_HEALTH / 4 && gold >= 10) {
-            System.out.println("You should buy a potion.");
-        }
+        // ---------- L4 · the health bar ----------
+        int bars = health / 5;
+        String bar = "#".repeat(bars) + "-".repeat(20 - bars);
+        System.out.printf("[%s] %d%%%n", bar, health);
     }
 }
