@@ -1,21 +1,18 @@
 /*
- * U1 L7 — SWITCH, TERNARY, AND CODING TO SPEC · STARTER CODE
- * 7184 Software Development · Unit 1, Lesson 7
+ * U1 L8 — WHILE LOOPS AND THE GAME LOOP · STARTER CODE
+ * 7184 Software Development · Unit 1, Lesson 8
  *
- * ALREADY HERE:  Lessons 1-6 finished — the title screen, Scanner input, the
- *                combat maths, the attack branching, and the health clamp.
- * YOU'RE ADDING: a difficulty name from a switch EXPRESSION, a four-option
- *                combat menu from a switch STATEMENT, and two ternaries.
+ * ALREADY HERE:  Lessons 1-7 finished — including the combat menu and the
+ *                switch that drives it.
+ * YOU'RE ADDING: input validation that finally closes the Lesson 5 TODO, and
+ *                a while loop that turns one turn into a whole fight.
  *
  *     javac Main.java
  *     java Main
  *
- * BUILD WHAT THE SPEC SAYS, not what you would prefer. The spec sheet is on
- * the assignment page. You will disagree with something in it — probably the
- * 5 HP for defending. Build it anyway, then tell me why you'd change it.
- *
- * TODAY IS ONE TURN. The menu runs once and the program ends. That should
- * annoy you. Taking a second turn needs a loop, and that is Lesson 8.
+ * BEFORE YOU CHANGE ANYTHING: run it and type `banana` at the difficulty
+ * prompt. It dies. That has been true since Lesson 5 and there is a TODO in
+ * this file that says so. Today you close it.
  */
 
 import java.util.Scanner;
@@ -34,6 +31,9 @@ public class Main {
          * USE "Challenger" instead
          * ASK for difficulty 1-3
          * REPEAT UNTIL the answer is 1, 2, or 3 <- L8, needs do-while
+         * SHOW the menu and READ one action
+         * DO what the spec says for that action
+         * REPEAT the whole turn until someone falls <- L8, needs while
          * SET enemy health based on difficulty
          * SHOW a summary and wait for Enter
          */
@@ -58,16 +58,28 @@ public class Main {
             playerName = "Challenger";
         }
 
-        System.out.print("Difficulty (1 = easy, 2 = normal, 3 = brutal): ");
-        int difficulty = in.nextInt();
+        int difficulty;
+        do {
+            System.out.print("Difficulty (1 = easy, 2 = normal, 3 = brutal): ");
+            while (!in.hasNextInt()) {
+                System.out.print("Numbers only. Try again: ");
+                in.next();
+            }
+            difficulty = in.nextInt();
+        } while (difficulty < 1 || difficulty > 3);
         in.nextLine();
 
+        // ---------- L7 · a switch EXPRESSION — it produces a value ----------
+        // Note the arrows and the semicolon at the end. This whole switch IS
+        // the right-hand side of an assignment.
         String difficultyName = switch (difficulty) {
-        case 1 -> "Easy";
-        case 2 -> "Normal";
-        case 3 -> "Brutal";
-        default -> "Unknown";
+            case 1 -> "Easy";
+            case 2 -> "Normal";
+            case 3 -> "Brutal";
+            default -> "Unknown";
         };
+        System.out.println("Difficulty: " + difficultyName);
+        System.out.println("");
 
         int health = MAX_HEALTH;
         int gold = STARTING_GOLD;
@@ -153,36 +165,81 @@ public class Main {
         System.out.println("Lost to the cast:     " + (critDamage - applied));
         System.out.println("");
 
-        // ---------- L6 · the attack roll (keep this — it moves) ----------
-        int roll = 7;
+        int turnNumber = 1;
+        boolean playing = true;
+
+        while (playing) {
+            turnNumber++;
+        }
+
+        int roll = (turnNumber * 3) % 10 + 1;
         int damage2 = 0;
         int potions = 2;
 
+        if (alive && enemyHealth > 0) {
+            health -= enemyPower;
+            System.out.printf("The %s strikes back for %d.%n", enemyName, enemyPower);
+        }
+
+        if (!alive) {
+            playing = false;
+        } else if (enemyHealth <= 0) {
+            playing = false;
+        } else if (health <= 0) {
+            playing = false;
+        }
+
+        // ---------- L7 · the menu, implemented from the spec sheet ----------
+        System.out.println("Your move.");
         System.out.print("[A]ttack  [D]efend  [P]otion  [F]lee: ");
         String action = in.nextLine().trim().toUpperCase();
-        
+
+        // A switch STATEMENT — it does things rather than producing a value.
+        // Arrow cases do not fall through, so no break is needed anywhere.
         switch (action) {
-            case "A":
-                System.out.println("You attack");
-                break;
-            case "D":
-                System.out.println("You defend");
-                break;
-            case "P":
-                System.out.println("You drink a potion");
-                break;
-            case "F":
-                System.out.println("You flee");
-                break;
-            default:
-                System.out.println("You flee");
-        };
+            case "A" -> {
+                if (roll >= 9) {
+                    damage2 = enemyPower * 2;
+                    System.out.println("CRITICAL HIT!");
+                } else if (roll >= 3) {
+                    damage2 = enemyPower;
+                    System.out.println("A solid hit.");
+                } else {
+                    damage2 = 0;
+                    System.out.println("You miss.");
+                }
+            }
+            case "D" -> {
+                damage2 = 0;
+                health += 5;
+                System.out.println("You raise your guard and recover 5 HP.");
+            }
+            case "P" -> {
+                if (potions > 0) {
+                    potions--;
+                    health += 25;
+                    System.out.println("You drink a potion and recover 25 HP.");
+                } else {
+                    System.out.println("You reach for a potion. There are none.");
+                }
+            }
+            case "F" -> {
+                alive = false;
+                System.out.println("You run for the gate. The crowd howls.");
+            }
+            // The spec says an unknown key costs the turn. It does NOT say
+            // "ask again" — that would be a different program, and L8's loop
+            // is what makes asking again possible.
+            default -> System.out.println("The crowd jeers. You hesitate and lose the turn.");
+        }
 
+        // ---------- L7 · the ternary — it CHOOSES A VALUE, nothing more ----------
         System.out.printf("You have %d %s left.%n",
-                  potions, potions == 1 ? "potion" : "potions");
+                potions, potions == 1 ? "potion" : "potions");
 
-        enemyHealth -= damage2;
-        System.out.printf("%s has %d HP left.%n", enemyName, enemyHealth);
+        String condition = health > MAX_HEALTH / 2 ? "steady" : "faltering";
+        System.out.println("You look " + condition + ".");
+        System.out.println("");
 
         // ---------- L6 · the fight can now end ----------
         if (enemyHealth <= 0) {
