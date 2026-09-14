@@ -1,4 +1,69 @@
+/* TODO 3: movement is now THREE steps, every time:
+ *
+ *           1. clear the old cell:  arena[r][c] = ' ';
+ *           2. update the position
+ *           3. set the new cell:    arena[r][c] = '@';
+ *
+ *         Miss step 1 and your player leaves a trail of '@' behind it. You
+ *         will see it immediately and it is funny. Then fix it.
+ *
+ *         COLLISION is just checking what is already in the cell you are about
+ *         to enter. Write a peek(arena, row, col) that returns that character,
+ *         then refuse to move into '#' or 'X'.
+ *
+ * TODO 4: a damage log and its average.
+ *
+ *           int[] damageLog = new int[20];
+ *           ...
+ *           int total = 0;
+ *           for (int d : damageLog) total += d;
+ *           double average = (double) total / damageLog.length;
+ *
+ *         The cast is Lesson 3's. Leave it out and every average is a whole
+ *         number.
+ *
+ * TODO 5: BREAK IT ON PURPOSE. Twice, deliberately.
+ *
+ *           inventory[5]        on a 5-length array
+ *              -> ArrayIndexOutOfBoundsException: Index 5 out of bounds for length 5
+ *
+ *           names[3].length()   on a slot you never assigned
+ *              -> NullPointerException
+ *
+ *         Read both messages out loud. Java's array errors are unusually good
+ *         -- the first one tells you the index AND the length, which is the
+ *         whole diagnosis.
+ *
+ * ==========================================================================
+ * FINISHED EARLY?
+ *
+ *   Add a hazard '^' that hurts you and a treasure '$' that pays you.
+ *   One line each -- because the grid now STORES the world instead of just
+ *   drawing it. That is the entire argument for the 2D array.
+ *
+ * BEFORE YOU LEAVE: back up as Arena_U1L11_LastnameF and submit.
+ */
+
 import java.util.Scanner;
+
+/*
+ * U1 L10 — METHODS, PARAMETERS, RETURN VALUES · your Lesson 10 code
+ *
+ * SAME GAME. SAME BEHAVIOUR. Every output is byte-for-byte what L9 produced.
+ * The only thing that changed is where the code lives.
+ *
+ *   main in L9:  258 lines   (measured, not estimated)
+ *   main here:    50 lines   -- an 80% cut, into 31 named methods
+ *
+ * Those numbers are the lesson. Put both on the board.
+ *
+ * WHY NOT LOWER? The turn switch mutates five things at once -- health,
+ * potions, playerCol, damage and fled. Extracting it would need to return all
+ * five, and there is only one return. THAT is the extension, and it is the
+ * cliffhanger into U2: you want to return a whole fighter, and you cannot yet.
+ */
+
+
 
 public class Main {
 
@@ -7,7 +72,7 @@ public class Main {
     static final int ROWS = 5;
     static final int COLS = 11;
 
-
+    // ================= main: the shape of the program, and nothing else =====
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
 
@@ -22,6 +87,23 @@ public class Main {
         String enemyName = "Cave Goblin";
         int enemyHealth = 30 + difficulty * 15;
         int enemyPower = 4 + difficulty * 3;
+
+        String[] itemNames = new String[5];
+        int[] itemCounts = new int[5];
+        int itemSlots = 0;
+        itemNames[0] = "Potion"; itemCounts[0] = 2; itemSlots++;
+        itemNames[1] = "Bomb";    itemCounts[1] = 1;  itemSlots++;
+
+        char[][] arena = new char[5][11];
+        for (int r = 0; r < arena.length; r++) {
+            for (int c = 0; c < arena[r].length; c++) {
+                boolean edge = (r == 0 || r == arena.length - 1
+                    || c == 0 || c == arena[r].length - 1);
+                    arena[r][c] = edge ? '#' : ' ';
+            }
+        }
+        arena[playerRow][playerCol] = '@';
+        arena[enemyRow][enemyCol]   = 'X';
 
         openingCeremony(in, playerName, health, enemyName, enemyHealth);
 
@@ -61,6 +143,7 @@ public class Main {
         System.out.printf("%nThe arena empties after %d turns.%n", turnNumber - 1);
     }
 
+    // ================= output: no return value, nothing to get wrong ========
 
     static void printTitle() {
         System.out.print("""
@@ -117,7 +200,7 @@ public class Main {
         System.out.println("FIGHT!");
     }
 
-
+    // L9's nested loop, unchanged — just moved somewhere with a name.
     static void drawArena(int playerRow, int playerCol, int enemyRow, int enemyCol) {
         for (int r = 0; r < ROWS; r++) {
             for (int c = 0; c < COLS; c++) {
@@ -132,6 +215,7 @@ public class Main {
         System.out.println("");
     }
 
+    // ================= input =================
 
     static String readName(Scanner in) {
         System.out.print("What is your name, challenger? ");
@@ -139,6 +223,8 @@ public class Main {
         return name.isEmpty() ? "Challenger" : name;
     }
 
+    // The twelve ugly lines from L8, now one call. THIS is the extraction that
+    // makes the case for methods better than any definition does.
     static int readChoice(Scanner in, int min, int max, String prompt) {
         int choice;
         do {
@@ -163,6 +249,7 @@ public class Main {
         return in.nextLine().trim().toUpperCase();
     }
 
+    // ================= things that give a value back =================
 
     static String difficultyName(int difficulty) {
         return switch (difficulty) {
@@ -187,6 +274,8 @@ public class Main {
         return 0;
     }
 
+    // OVERLOAD: same name, different parameter list. Java picks by what you pass.
+    // Note the parameters differ — a return-type-only difference will not compile.
     static int calculateDamage(int power, int roll, double critMultiplier) {
         if (roll >= 9) return (int) (power * critMultiplier);
         if (roll >= 3) return power;
@@ -250,6 +339,9 @@ public class Main {
         return true;
     }
 
+    // The enemy only answers if you are still here and it can reach you.
+    // Returns the player's new health, clamped — because a method that changes
+    // a parameter changes only its own copy.
     static int enemyResponse(boolean fled, boolean adjacent, int health,
                              int enemyHealth, int enemyPower, String enemyName) {
         if (!fled && isAlive(enemyHealth) && adjacent) {
@@ -274,5 +366,19 @@ public class Main {
             return true;
         }
         return false;
+    }
+
+    static void printInventory(String[] names, int[] counts, int slots){
+        System.out.println("-- Pack --");
+        for(int i = 0; i < slots; i++){
+            System.out.printf("  %d) %-10s x%d%n", i+1, names[i], counts[i]);
+        }
+        System.out.println();
+    }
+
+    static void drawArena(char[][] arena) {
+        for (char[] row : arena) {
+            System.out.println(new String(row));
+        }
     }
 }
