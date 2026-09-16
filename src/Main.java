@@ -1,49 +1,3 @@
-/* TODO 3: movement is now THREE steps, every time:
- *
- *           1. clear the old cell:  arena[r][c] = ' ';
- *           2. update the position
- *           3. set the new cell:    arena[r][c] = '@';
- *
- *         Miss step 1 and your player leaves a trail of '@' behind it. You
- *         will see it immediately and it is funny. Then fix it.
- *
- *         COLLISION is just checking what is already in the cell you are about
- *         to enter. Write a peek(arena, row, col) that returns that character,
- *         then refuse to move into '#' or 'X'.
- *
- * TODO 4: a damage log and its average.
- *
- *           int[] damageLog = new int[20];
- *           ...
- *           int total = 0;
- *           for (int d : damageLog) total += d;
- *           double average = (double) total / damageLog.length;
- *
- *         The cast is Lesson 3's. Leave it out and every average is a whole
- *         number.
- *
- * TODO 5: BREAK IT ON PURPOSE. Twice, deliberately.
- *
- *           inventory[5]        on a 5-length array
- *              -> ArrayIndexOutOfBoundsException: Index 5 out of bounds for length 5
- *
- *           names[3].length()   on a slot you never assigned
- *              -> NullPointerException
- *
- *         Read both messages out loud. Java's array errors are unusually good
- *         -- the first one tells you the index AND the length, which is the
- *         whole diagnosis.
- *
- * ==========================================================================
- * FINISHED EARLY?
- *
- *   Add a hazard '^' that hurts you and a treasure '$' that pays you.
- *   One line each -- because the grid now STORES the world instead of just
- *   drawing it. That is the entire argument for the 2D array.
- *
- * BEFORE YOU LEAVE: back up as Arena_U1L11_LastnameF and submit.
- */
-
 import java.util.Scanner;
 
 /*
@@ -138,6 +92,7 @@ public class Main {
 
             playing = !endOfFight(fled, health, enemyHealth, enemyName, turnNumber);
             turnNumber++;
+            
         }
 
         System.out.printf("%nThe arena empties after %d turns.%n", turnNumber - 1);
